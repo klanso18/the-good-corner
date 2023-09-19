@@ -1,0 +1,11 @@
+POST http://localhost:3000/ad
+Content-Type: application/json
+
+{
+  "title": "Nintendo Switch to sell",
+  "description": "A brand new Nitendo Switch with two controllers and three games",
+  "owner": "Kévin",
+  "price": 100,
+  "picture": "https://www.gamecash.fr/thumbnail-400-450/console-nintendo-switch-2-e112390.jpg",
+  "location": "Bordeaux"
+}

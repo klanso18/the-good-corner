@@ -1,12 +1,12 @@
-import express from "express";
-
+import express, { Request, Response } from "express";
+import { Ad } from './types';
 const app = express();
 
 app.use(express.json());
 
 const port = 3000;
 
-const ads = [
+let ads: Ad[] = [
   {
     id: 1,
     title: "Bike to sell",
@@ -33,24 +33,43 @@ const ads = [
   },
 ];
 
-app.get("/", (req, res) => {
+app.get("/", (req: Request, res: Response) => {
   res.send("Hello World!");
 });
 
-app.get("/ads", (req, res) => {
+app.get("/ads", (req: Request, res: Response) => {
   res.send(ads);
 })
 
-app.post("/ad", (req, res) => {
+app.post("/ad", (req: Request, res: Response) => {
   const id = ads.length + 1;
-  const ad = {
+  const newAd = {
     ...req.body, 
     id,
-    createdAt: new Date(),
+    createdAt: new Date().toISOString(),
   };
-  ads.push(ad);
-  res.send(ad);
+
+  ads.push(newAd);
+  res.send("Request received, check the backend terminal");
 });
+
+app.delete("/ad/:id", (req: Request, res: Response) => {
+  const objectId = parseInt(req.params.id, 10);
+  ads = ads.filter((ad) => ad.id !== objectId);
+  res.send("The ad was deleted");
+})
+
+app.put("/ad/:id", (req: Request, res: Response) => {
+  const objectId = parseInt(req.params.id);
+  const updatedObject = req.body;
+  ads = ads.map(ad => {
+    if (ad.id === objectId) {
+      return { ...ad, ...updatedObject };
+    }
+    return ad;
+  });
+  return res.status(200).json({ message: 'Objet mis à jour avec succès' });
+})
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

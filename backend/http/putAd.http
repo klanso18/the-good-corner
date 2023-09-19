@@ -1,0 +1,6 @@
+PUT http://localhost:3000/ad/2
+Content-Type: application/json
+
+{
+  "description": "My car is red, working fine. I'm selling it because I've got a new one"
+}

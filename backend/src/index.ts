@@ -1,10 +1,13 @@
 import express, { Request, Response } from "express";
+import sqlite3 from 'sqlite3';
 import { Ad } from './types';
 const app = express();
 
 app.use(express.json());
 
 const port = 3000;
+
+const db = new sqlite3.Database('good_corner.sqlite');
 
 let ads: Ad[] = [
   {
@@ -38,38 +41,113 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.get("/ads", (req: Request, res: Response) => {
-  res.send(ads);
-})
+  db.all("SELECT * FROM ad", (err, rows) => {
+    if (!err) return res.send(rows);
+    console.log(err);
+    res.sendStatus(500);
+  });
+});
 
 app.post("/ad", (req: Request, res: Response) => {
-  const id = ads.length + 1;
+  //WITHOUT DB :
+  // const id = ads.length + 1;
+  // const newAd = {
+  //   ...req.body, 
+  //   id,
+  //   createdAt: new Date().toISOString(),
+  // };
+  // ads.push(newAd);
+
+  //WITH DB :
   const newAd = {
     ...req.body, 
-    id,
     createdAt: new Date().toISOString(),
   };
+  db.run("INSERT INTO ad (title, owner, price, location) VALUES ($title, $owner, $price, $location)", 
+    {
+      $title: req.body.title,
+      $owner: req.body.owner,
+      $price: req.body.price,
+      $location: req.body.location
+    },
+    function (this: any, err: any) {
+      if (!err)
+        return res.send({
+          ...newAd,
+          id: this.lastID,
+        }
+      );
+    }
+  );
 
-  ads.push(newAd);
-  res.send("Request received, check the backend terminal");
+  res.send(newAd);
 });
 
 app.delete("/ad/:id", (req: Request, res: Response) => {
-  const objectId = parseInt(req.params.id, 10);
-  ads = ads.filter((ad) => ad.id !== objectId);
-  res.send("The ad was deleted");
+  //WITHOUT DB :
+  //const objectId = parseInt(req.params.id, 10);
+  //ads = ads.filter((ad) => ad.id !== objectId);
+  // res.send("The ad was deleted");
+
+  //WITH DB :
+  db.get("SELECT * FROM ad WHERE id = ?", [req.params.id], (err, row) => {
+    if (err) {
+      console.log(err);
+      return res.sendStatus(500);
+    }
+    if (!row) return res.sendStatus(404);
+    db.run("DELETE FROM ad WHERE id = ?", [req.params.id], (err: any) => {
+      if (!err) return res.sendStatus(204);
+      console.log(err);
+      res.sendStatus(500);
+    })
+  })
 })
 
-app.put("/ad/:id", (req: Request, res: Response) => {
-  const objectId = parseInt(req.params.id);
-  const updatedObject = req.body;
-  ads = ads.map(ad => {
-    if (ad.id === objectId) {
-      return { ...ad, ...updatedObject };
+app.patch("/ad/:id", (req: Request, res: Response) => {
+  //WITHOUT DB :
+  // const objectId = parseInt(req.params.id);
+  // const updatedObject = req.body;
+  // ads = ads.map(ad => {
+  //   if (ad.id === objectId) {
+  //     return { ...ad, ...updatedObject };
+  //   }
+  //   return ad;
+  // });
+  // return res.status(200).json({ message: 'Objet mis à jour avec succès' });
+
+  //WITH DB :
+  db.get("SELECT * FROM ad WHERE id = ?", [req.params.id], (err, row) => {
+    if (err) {
+      console.log(err);
+      return res.sendStatus(500);
     }
-    return ad;
+    if (!row) return res.sendStatus(404);
+
+    // creates a string with this shape : "title = $title, description = $description, ..."
+    const setProps = Object.keys(req.body)
+      .reduce<string[]>((acc, prop) => [...acc, `${prop} = $${prop}`], [])
+      .join(", ");
+    
+    // creates an object with this shape : {$title: "title sent by client", "$description: " description sent by client", ...}
+    const propsToUpdate = Object.keys(req.body).reduce(
+      (acc, prop) => ({...acc, [`$${prop}`]: req.body[prop] }),
+      {}
+    );
+
+    db.run(
+      `UPDATE ad SET ${setProps} WHERE id = $id`, { 
+        ...propsToUpdate, 
+        $id: req.params.id 
+      },
+      (err: any) => {
+        if (!err) return res.send({...row, ...req.body });
+        console.log(err);
+        res.sendStatus(500);
+      }
+    );
   });
-  return res.status(200).json({ message: 'Objet mis à jour avec succès' });
-})
+});
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

@@ -1,0 +1,7 @@
+PATCH http://localhost:3000/ad/1
+Content-Type: application/json
+
+{
+  "title": "Macbook air M2",
+  "price": 1200
+}

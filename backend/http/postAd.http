@@ -2,8 +2,12 @@ POST http://localhost:3000/ad
 Content-Type: application/json
 
 {
-  "title": "Chaussures de rando",
-  "owner": "Jean-Claude",
-  "price": 90,
-  "location": "Bordeaux"
+  "title": "Peugeot 207",
+  "description": "description of the car...",
+  "owner": "Jean",
+  "price": 3000,
+  "picture": "https://cdn.vroomiz.fr/uploads/advertcars/66fb52d0e60dafa6c9b6aeb02eb653ebs6465f876abd8b.jpeg",
+  "location": "Bayonne",
+  "category": 2,
+  "tags": [{"id": 3}, {"name": "#peugeot"}]
 }

@@ -59,9 +59,9 @@ INSERT INTO category (name) VALUES
 
 SELECT * FROM ad AS a INNER JOIN category AS c ON c.id = a.category_id WHERE c.name = 'vêtement';
 
-SELECT * FROM ad AS a INNER JOIN category AS c ON c.id = a.category_id WHERE c.name = 'vêtement' AND c.name = 'voiture';
+SELECT * FROM ad AS a INNER JOIN category AS c ON c.id = a.category_id WHERE c.name IN ('vêtement', 'voiture');
 
-SELECT AVG(price) FROM ad AS a INNER JOIN category AS c ON c.id = a.category_id WHERE c.name = 'autre';
+SELECT AVG(price), c.name FROM ad AS a LEFT JOIN category AS c ON a.category_id = c.id WHERE c.name IS NOT NULL GROUP BY c.name;
 
 SELECT * FROM ad AS a INNER JOIN category AS c ON c.id = a.category_id WHERE c.name LIKE 'v%';
 

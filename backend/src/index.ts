@@ -1,154 +1,132 @@
+import "reflect-metadata";
 import express, { Request, Response } from "express";
-import sqlite3 from 'sqlite3';
-import { Ad } from './types';
+import { validate } from "class-validator";
+import { Ad } from './entities/ad';
+import { Tag } from './entities/tag';
+import { Category } from "./entities/category";
+import db from "./config/db";
+import { Like, In } from "typeorm";
+
 const app = express();
+const port = 3000;
 
 app.use(express.json());
 
-const port = 3000;
-
-const db = new sqlite3.Database('good_corner.sqlite');
-
-let ads: Ad[] = [
-  {
-    id: 1,
-    title: "Bike to sell",
-    description:
-      "My bike is blue, working fine. I'm selling it because I've got a new one",
-    owner: "bike.seller@gmail.com",
-    price: 100,
-    picture:
-      "https://images.lecho.be/view?iid=dc:113129565&context=ONLINE&ratio=16/9&width=640&u=1508242455000",
-    location: "Paris",
-    createdAt: "2023-09-05T10:13:14.755Z",
-  },
-  {
-    id: 2,
-    title: "Car to sell",
-    description:
-      "My car is blue, working fine. I'm selling it because I've got a new one",
-    owner: "car.seller@gmail.com",
-    price: 10000,
-    picture:
-      "https://www.automobile-magazine.fr/asset/cms/34973/config/28294/apres-plusieurs-prototypes-la-bollore-bluecar-a-fini-par-devoiler-sa-version-definitive.jpg",
-    location: "Paris",
-    createdAt: "2023-10-05T10:14:15.922Z",
-  },
-];
-
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello World!");
-});
-
-app.get("/ads", (req: Request, res: Response) => {
-  db.all("SELECT * FROM ad", (err, rows) => {
-    if (!err) return res.send(rows);
+app.get("/tags", async (req: Request, res: Response) => {
+  try {
+    const { name } = req.query;
+    const tags = await Tag.find({
+      where: { name: name ? Like(`%${name}%`) : undefined },
+    });
+    res.send(tags);
+  } catch (err) {
     console.log(err);
     res.sendStatus(500);
-  });
+  }
 });
 
-app.post("/ad", (req: Request, res: Response) => {
-  //WITHOUT DB :
-  // const id = ads.length + 1;
-  // const newAd = {
-  //   ...req.body, 
-  //   id,
-  //   createdAt: new Date().toISOString(),
-  // };
-  // ads.push(newAd);
-
-  //WITH DB :
-  const newAd = {
-    ...req.body, 
-    createdAt: new Date().toISOString(),
-  };
-  db.run("INSERT INTO ad (title, owner, price, location) VALUES ($title, $owner, $price, $location)", 
-    {
-      $title: req.body.title,
-      $owner: req.body.owner,
-      $price: req.body.price,
-      $location: req.body.location
-    },
-    function (this: any, err: any) {
-      if (!err)
-        return res.send({
-          ...newAd,
-          id: this.lastID,
-        }
-      );
-    }
-  );
-
-  res.send(newAd);
+app.get("/categories", async (req: Request, res: Response) => {
+  try {
+    const categories = await Category.find({
+      relations: {
+        ads: true,
+      },
+    });
+    res.send(categories);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
 });
 
-app.delete("/ad/:id", (req: Request, res: Response) => {
-  //WITHOUT DB :
-  //const objectId = parseInt(req.params.id, 10);
-  //ads = ads.filter((ad) => ad.id !== objectId);
-  // res.send("The ad was deleted");
+app.get("/ads", async (req: Request, res: Response) => {
+  const { tagIds } = req.query;
+  try {
+    const ads = await Ad.find({
+      relations: {
+        category: true,
+        tags: true,
+      },
+      where: {
+        tags: {
+          id: 
+            typeof tagIds === "string" && tagIds.length > 0
+            ? In(tagIds.split(",").map((t) => parseInt(t, 10)))
+            : undefined,
+        },
+      },
+    });
+    res.send(ads);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+});
 
-  //WITH DB :
-  db.get("SELECT * FROM ad WHERE id = ?", [req.params.id], (err, row) => {
-    if (err) {
-      console.log(err);
-      return res.sendStatus(500);
-    }
-    if (!row) return res.sendStatus(404);
-    db.run("DELETE FROM ad WHERE id = ?", [req.params.id], (err: any) => {
-      if (!err) return res.sendStatus(204);
-      console.log(err);
-      res.sendStatus(500);
-    })
-  })
+app.post("/ad", async (req: Request, res: Response) => {
+  try {
+    const newAd = Ad.create(req.body);
+    const errors = await validate(newAd);
+    if (errors.length !== 0) return res.status(422).send({ errors });
+    res.send(await newAd.save());
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+});
+
+app.post("/tag", async (req: Request, res: Response) => {
+  try {
+    const newTag = Tag.create(req.body);
+    const errors = await validate(newTag);
+    if (errors.length !== 0) return res.status(422).send({ errors });
+    res.send(await newTag.save());
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+});
+
+app.delete("/ad/:id", async (req: Request, res: Response) => {
+  try {
+    const adToDelete = await Ad.findOneBy({ id: parseInt(req.params.id, 10) });
+    if (!adToDelete) return res.sendStatus(404);
+    await adToDelete.remove();
+    res.sendStatus(204);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+});
+
+app.delete("/tag/:id", async (req: Request, res: Response) => {
+  try {
+    const tagToDelete = await Tag.findOneBy({ id: parseInt(req.params.id, 10) });
+    if (!tagToDelete) return res.sendStatus(404);
+    await tagToDelete.remove();
+    res.sendStatus(204);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
 })
 
-app.patch("/ad/:id", (req: Request, res: Response) => {
-  //WITHOUT DB :
-  // const objectId = parseInt(req.params.id);
-  // const updatedObject = req.body;
-  // ads = ads.map(ad => {
-  //   if (ad.id === objectId) {
-  //     return { ...ad, ...updatedObject };
-  //   }
-  //   return ad;
-  // });
-  // return res.status(200).json({ message: 'Objet mis à jour avec succès' });
-
-  //WITH DB :
-  db.get("SELECT * FROM ad WHERE id = ?", [req.params.id], (err, row) => {
-    if (err) {
-      console.log(err);
-      return res.sendStatus(500);
-    }
-    if (!row) return res.sendStatus(404);
-
-    // creates a string with this shape : "title = $title, description = $description, ..."
-    const setProps = Object.keys(req.body)
-      .reduce<string[]>((acc, prop) => [...acc, `${prop} = $${prop}`], [])
-      .join(", ");
-    
-    // creates an object with this shape : {$title: "title sent by client", "$description: " description sent by client", ...}
-    const propsToUpdate = Object.keys(req.body).reduce(
-      (acc, prop) => ({...acc, [`$${prop}`]: req.body[prop] }),
-      {}
-    );
-
-    db.run(
-      `UPDATE ad SET ${setProps} WHERE id = $id`, { 
-        ...propsToUpdate, 
-        $id: req.params.id 
-      },
-      (err: any) => {
-        if (!err) return res.send({...row, ...req.body });
-        console.log(err);
-        res.sendStatus(500);
-      }
-    );
-  });
+app.patch("/ad/:id", async (req: Request, res: Response) => {
+  try {
+    const adToUpdate = await Ad.findOneBy({ id: parseInt(req.params.id, 10) });
+    if (!adToUpdate) return res.sendStatus(404);
+    //await Ad.update(parseInt(req.params.id, 10), req.body);
+    await Ad.merge(adToUpdate, req.body);
+    const errors = await validate(adToUpdate);
+    if (errors.length !== 0) return res.status(422).send({ errors });
+    res.send(await adToUpdate.save());
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+app.listen(port, async () => {
+  await db.initialize();
+  console.log(`Server lauch on port ${port}`);
 });

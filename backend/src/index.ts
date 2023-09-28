@@ -1,16 +1,18 @@
 import "reflect-metadata";
 import express, { Request, Response } from "express";
 import { validate } from "class-validator";
-import { Ad } from './entities/ad';
-import { Tag } from './entities/tag';
+import { Ad } from "./entities/ad";
+import { Tag } from "./entities/tag";
 import { Category } from "./entities/category";
 import db from "./config/db";
 import { Like, In } from "typeorm";
+import cors from "cors";
 
 const app = express();
-const port = 3000;
+const port = 4000;
 
 app.use(express.json());
+app.use(cors());
 
 app.get("/tags", async (req: Request, res: Response) => {
   try {
@@ -41,6 +43,7 @@ app.get("/categories", async (req: Request, res: Response) => {
 
 app.get("/ads", async (req: Request, res: Response) => {
   const { tagIds } = req.query;
+  const title = req.query.title as string | undefined;
   try {
     const ads = await Ad.find({
       relations: {
@@ -49,14 +52,26 @@ app.get("/ads", async (req: Request, res: Response) => {
       },
       where: {
         tags: {
-          id: 
+          id:
             typeof tagIds === "string" && tagIds.length > 0
-            ? In(tagIds.split(",").map((t) => parseInt(t, 10)))
-            : undefined,
+              ? In(tagIds.split(",").map((t) => parseInt(t, 10)))
+              : undefined,
         },
+        title: title ? Like(`%${title}%`) : undefined,
       },
     });
     res.send(ads);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+});
+
+app.get("/ads/:id", async (req: Request, res: Response) => {
+  try {
+    const ad = await Ad.findOneBy({ id: parseInt(req.params.id, 10) });
+    if (!ad) return res.sendStatus(404);
+    res.send(ad);
   } catch (err) {
     console.log(err);
     res.sendStatus(500);
@@ -101,7 +116,9 @@ app.delete("/ad/:id", async (req: Request, res: Response) => {
 
 app.delete("/tag/:id", async (req: Request, res: Response) => {
   try {
-    const tagToDelete = await Tag.findOneBy({ id: parseInt(req.params.id, 10) });
+    const tagToDelete = await Tag.findOneBy({
+      id: parseInt(req.params.id, 10),
+    });
     if (!tagToDelete) return res.sendStatus(404);
     await tagToDelete.remove();
     res.sendStatus(204);
@@ -109,7 +126,7 @@ app.delete("/tag/:id", async (req: Request, res: Response) => {
     console.log(err);
     res.sendStatus(500);
   }
-})
+});
 
 app.patch("/ad/:id", async (req: Request, res: Response) => {
   try {

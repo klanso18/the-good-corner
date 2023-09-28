@@ -44,7 +44,7 @@ export default function AdDetails() {
           <p>lieu : {ad.location}</p>
           <img src={ad.picture} alt={ad.title} />
           <p>{ad.description}</p>
-          <button className="btn" onClick={handleDelete}>Supprimer l'annonce</button>
+          <button className="button" onClick={handleDelete}>Supprimer l'annonce</button>
         </div>
       )}
     </Layout>

@@ -1,23 +1,34 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import axios from "axios";
+import { Category } from "@/types";
 
 export default function Header() {
-  const categories = [
-    { name: "Ameublement" },
-    { name: "Électroménager" },
-    { name: "Photographie" },
-    { name: "Informatique" },
-    { name: "Téléphonie" },
-    { name: "Vélos" },
-    { name: "Véhicules" },
-    { name: "Sport" },
-    { name: "Habillement" },
-    { name: "Bébé" },
-    { name: "Outillage" },
-    { name: "Services" },
-    { name: "Vacances" },
-  ];
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    axios
+      .get<Category[]>("http://localhost:4000/categories")
+      .then((res) => setCategories(res.data))
+      .catch(console.error);
+  }, []);
+
+  // const categories = [
+  //   { name: "Ameublement" },
+  //   { name: "Électroménager" },
+  //   { name: "Photographie" },
+  //   { name: "Informatique" },
+  //   { name: "Téléphonie" },
+  //   { name: "Vélos" },
+  //   { name: "Véhicules" },
+  //   { name: "Sport" },
+  //   { name: "Habillement" },
+  //   { name: "Bébé" },
+  //   { name: "Outillage" },
+  //   { name: "Services" },
+  //   { name: "Vacances" },
+  // ];
 
   const router = useRouter();
 

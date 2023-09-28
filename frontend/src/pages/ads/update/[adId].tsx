@@ -13,7 +13,8 @@ export default function UpdateAd() {
   const [ad, setAd] = useState<Ad>();
 
   useEffect(() => {
-    axios
+    if (router.isReady) {
+      axios
       .get<Category[]>("http://localhost:4000/categories")
       .then((res) => setCategories(res.data))
       .catch(console.error);
@@ -21,6 +22,7 @@ export default function UpdateAd() {
       .get<Ad>(`http://localhost:4000/ads/${adId}`)
       .then((res) => setAd(res.data))
       .catch(console.error);
+    }
   }, [adId]);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -32,6 +34,7 @@ export default function UpdateAd() {
       .patch(`http://localhost:4000/ad/${adId}`, formJSON)
       .then(() => {
         alert("Annonce mise à jour !");
+        router.push("/");
       })
       .catch(console.error);
   };

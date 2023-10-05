@@ -20,8 +20,11 @@ app.get("/categories", async (req: Request, res: Response) => {
   try {
     const categories = await Category.find({
       relations: {
-        ads: true,
+        ads: true
       },
+      order: {
+        id: "desc"
+      }
     });
     res.send(categories);
   } catch (err) {
@@ -41,7 +44,7 @@ app.get("/categories/:id", async (req: Request, res: Response) => {
   }
 });
 
-app.post("/category", async (req: Request, res: Response) => {
+app.post("/categories", async (req: Request, res: Response) => {
   try {
     const newCat = Category.create(req.body);
     const errors = await validate(newCat);
@@ -119,7 +122,7 @@ app.get("/ads/:id", async (req: Request, res: Response) => {
   }
 });
 
-app.post("/ad", async (req: Request, res: Response) => {
+app.post("/ads", async (req: Request, res: Response) => {
   try {
     const newAd = Ad.create(req.body);
     const errors = await validate(newAd);

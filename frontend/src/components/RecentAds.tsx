@@ -30,21 +30,18 @@ const RecentAds = () => {
   // }, []);
 
   return (
-    <>
-    <h2>Annonces récentes</h2>
-    <p>Prix total : {total} €</p>
-    <button className="button" onClick={() => setTotal(0)}>Reset</button>
-    <section className= "recent-ads">
-      {ads.map((ad) => (
-        <AdCard
-          onAddPrice={(price) => setTotal((oldTotal) => oldTotal + price)}
-          key={ad.title}
-          ad={ad}
-          link={`/ads/${ad.id}`}
-        />
-      ))}
-    </section>
-    </>
+    <div className="pt-6">
+      <h2 className="text-2xl mb-6">Annonces récentes</h2>
+      <section className= "flex flex-wrap pb-24">
+        {ads.map((ad) => (
+          <AdCard
+            key={ad.title}
+            ad={ad}
+            link={`/ads/${ad.id}`}
+          />
+        ))}
+      </section>
+    </div>
   )
 }
 

@@ -5,9 +5,9 @@ import Header from "./Header";
 type LayoutProps = {
   children: ReactNode;
   title: string;
-}
+};
 
-export default function Layout ({ children, title }: LayoutProps) {
+export default function Layout({ children, title }: LayoutProps) {
   return (
     <>
       <Head>
@@ -19,5 +19,5 @@ export default function Layout ({ children, title }: LayoutProps) {
       <Header />
       <main className="main-content">{children}</main>
     </>
-  )
+  );
 }

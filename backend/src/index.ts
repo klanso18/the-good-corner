@@ -7,6 +7,12 @@ import { Category } from "./entities/category";
 import db from "./config/db";
 import { Like, In } from "typeorm";
 import cors from "cors";
+import { ApolloServer } from '@apollo/server';
+import { startStandaloneServer } from '@apollo/server/standalone';
+import AdResolver from "./resolvers/adResolver";
+import { buildSchema } from "type-graphql";
+import TagsResolver from "./resolvers/tagResolver";
+import CategoryResolver from "./resolvers/categoryResolver";
 
 const app = express();
 const port = 4000;
@@ -205,4 +211,13 @@ app.delete("/tag/:id", async (req: Request, res: Response) => {
 app.listen(port, async () => {
   await db.initialize();
   console.log(`Server lauch on port ${port}`);
+});
+
+buildSchema({
+  resolvers: [AdResolver, TagsResolver, CategoryResolver],
+}).then((schema) => {
+  const server = new ApolloServer({ schema });
+  startStandaloneServer(server, {
+    listen: { port: 4001 },
+  }).then(({ url }) => console.log(`🚀 GraphQL server listening on ${url}`));
 });

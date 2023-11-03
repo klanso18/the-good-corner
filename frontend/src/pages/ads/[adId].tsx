@@ -8,20 +8,53 @@ import { MapPinIcon } from "@heroicons/react/24/outline";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import { TrashIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import { useQuery, gql } from "@apollo/client";
+
+const GET_ONE_AD = gql`
+  query GetAdById($adId: Int!) {
+    getAdById(adId: $adId) {
+      description
+      id
+      location
+      owner
+      picture
+      price
+      title
+    }
+  }
+`;
+
+export type AdDetail = {
+  id: number;
+  title: string;
+  price: number;
+  picture: string;
+};
 
 export default function AdDetails() {
   const router = useRouter();
   const { adId } = router.query;
 
-  const [ad, setAd] = useState<Ad>();
+  const { data, refetch } = useQuery<{ getAdById: AdDetail }>(GET_ONE_AD, {
+    variables: { adId: typeof adId === "string" ? parseInt(adId, 10) : "" },
+    skip: typeof adId === "undefined",
+  });
 
   useEffect(() => {
-    if (typeof ad === "undefined")
-      axios
-        .get<Ad>(`http://localhost:4000/ads/${adId}`)
-        .then((res) => setAd(res.data))
-        .catch(console.error);
-  }, [adId]);
+    refetch();
+  }, []);
+
+  const ad = data?.getAdById;
+
+  // const [ad, setAd] = useState<Ad>();
+
+  // useEffect(() => {
+  //   if (typeof ad === "undefined")
+  //     axios
+  //       .get<Ad>(`http://localhost:4000/ads/${adId}`)
+  //       .then((res) => setAd(res.data))
+  //       .catch(console.error);
+  // }, [adId]);
 
   // const handleDelete = () => {
   //   const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer cette annonce ?");
@@ -37,15 +70,14 @@ export default function AdDetails() {
   //   }
   // };
 
-
   return (
     <Layout title={ad?.title ? ad.title + " - TGC" : "The Good Corner"}>
       <div className="pt-12 pb-12">
         <div className="p-6 bg-white shadow-lg rounded-2xl">
-        {typeof ad === "undefined" ? (
-          "Chargement..."
-        ) : (
-          <div className="">
+          {typeof ad === "undefined" ? (
+            "Chargement..."
+          ) : (
+            <div className="">
               <div className="flex justify-between items-center">
                 <h1 className="text-3xl">{ad.title}</h1>
                 <p className="text-2xl">{ad.price} €</p>

@@ -1,9 +1,39 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect } from "react";
 import AdCard from "./AdCard";
-import { Ad } from "@/types";
+import { useQuery, gql } from "@apollo/client";
 
-const RecentAds = () => {
+const GET_RECENT_ADS = gql`
+  query Ads {
+    ads {
+      id
+      picture
+      price
+      title
+    }
+  }
+`;
+
+export type RecentAd = {
+  id: number;
+  title: string;
+  price: number;
+  picture: string;
+};
+
+export default function RecentAds() {
+  const { data, loading, refetch } = useQuery<{ ads: RecentAd[] }>(
+    GET_RECENT_ADS
+  );
+
+  useEffect(() => {
+    refetch();
+  }, []);
+
+  if (loading) return "Chargement...";
+
+  const ads = data?.ads || [];
+
+  /*const RecentAds = () => {
   const [ads, setAds] = useState<Ad[]>([]);
 
   useEffect(() => {
@@ -15,19 +45,7 @@ const RecentAds = () => {
       .catch(console.error);
   }, []);
 
-  const [total, setTotal] = useState(0);
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const result = await axios.get("http://localhost:4000/ads");
-  //       console.log(result);
-  //     } catch (err) {
-  //       console.log("error", err);
-  //     }
-  //   };
-  //   fetchData();
-  // }, []);
+  const [total, setTotal] = useState(0);*/
 
   return (
     <div className="pt-6">
@@ -39,6 +57,4 @@ const RecentAds = () => {
       </section>
     </div>
   );
-};
-
-export default RecentAds;
+}

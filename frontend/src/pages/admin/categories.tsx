@@ -1,34 +1,34 @@
 import Categories from "@/components/Categories";
 import AdminCategoryRow from "@/components/admin/AdminCategoryRow";
 import AdminLayout from "@/components/admin/AdminLayout";
+import {
+  useCreateCategoryMutation,
+  useDeleteCategoryMutation,
+  useGetCategoriesQuery,
+} from "@/graphql/generated/schema";
 import { Category } from "@/types";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
 export default function AdminCategories() {
-  const [categories, setCategories] = useState<Category[]>([]);
-
-  useEffect(() => {
-    axios
-      .get<Category[]>("http://localhost:4000/categories")
-      .then((res) => setCategories(res.data))
-      .catch(console.error);
-  }, []);
+  const { data: catData, refetch: refetchCategories } = useGetCategoriesQuery();
+  const categories = catData?.categories || [];
+  const [createCategory] = useCreateCategoryMutation();
+  const [deleteCategory] = useDeleteCategoryMutation();
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
-    const data = new FormData(form);
+    const formData = new FormData(e.target as HTMLFormElement);
+    const formJSON = Object.fromEntries(formData.entries());
 
-    const json = Object.fromEntries(data.entries());
-
-    axios
-      .post("http://localhost:4000/categories", json)
-      .then((res) => {
-        setCategories((existingCategories) => [
-          res.data,
-          ...existingCategories,
-        ]);
+    createCategory({
+      variables: {
+        data: formJSON as any,
+      },
+    })
+      .then(() => {
+        refetchCategories();
         form.reset();
       })
       .catch(console.error);
@@ -36,14 +36,23 @@ export default function AdminCategories() {
 
   const handleDeleteCategory = (id: number) => {
     if (confirm("Êtes-vous certain de vouloir supprimer cette catégorie ?"))
-      axios
-        .delete(`http://localhost:4000/categories/${id}`)
+      deleteCategory({
+        variables: {
+          categoryId: id,
+        },
+      })
         .then(() => {
-          setCategories((existingCategories) =>
-            existingCategories.filter((c) => c.id !== id)
-          );
+          refetchCategories();
         })
         .catch(console.error);
+    // axios
+    //   .delete(`http://localhost:4000/categories/${id}`)
+    //   .then(() => {
+    //     setCategories((existingCategories) =>
+    //       existingCategories.filter((c) => c.id !== id)
+    //     );
+    //   })
+    //   .catch(console.error);
   };
 
   return (

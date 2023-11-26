@@ -8,21 +8,10 @@ import { MapPinIcon } from "@heroicons/react/24/outline";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import { TrashIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import { useQuery, gql } from "@apollo/client";
-
-const GET_ONE_AD = gql`
-  query GetAdById($adId: Int!) {
-    getAdById(adId: $adId) {
-      description
-      id
-      location
-      owner
-      picture
-      price
-      title
-    }
-  }
-`;
+import {
+  useGetAdByIdQuery,
+  useDeleteAdMutation,
+} from "@/graphql/generated/schema";
 
 export type AdDetail = {
   id: number;
@@ -33,10 +22,11 @@ export type AdDetail = {
 
 export default function AdDetails() {
   const router = useRouter();
+  const [deleteAd] = useDeleteAdMutation();
   const { adId } = router.query;
 
-  const { data, refetch } = useQuery<{ getAdById: AdDetail }>(GET_ONE_AD, {
-    variables: { adId: typeof adId === "string" ? parseInt(adId, 10) : "" },
+  const { data, refetch } = useGetAdByIdQuery({
+    variables: { adId: typeof adId === "string" ? parseInt(adId, 10) : 0 },
     skip: typeof adId === "undefined",
   });
 
@@ -114,8 +104,7 @@ export default function AdDetails() {
                         "Etes-vous certain.e de vouloir supprimer cette annonce ?"
                       )
                     )
-                      axios
-                        .delete(`http://localhost:4000/ads/${ad.id}`)
+                      deleteAd({ variables: { adId: ad.id } })
                         .then(() => {
                           router.push("/");
                         })

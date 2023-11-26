@@ -3,9 +3,11 @@ import axios from "axios";
 import { FormEvent, useEffect, useState } from "react";
 import { Category } from "@/types";
 import { useRouter } from "next/router";
+import { useCreateAdMutation } from "@/graphql/generated/schema";
 
 export default function NewAd() {
   const [categories, setCategories] = useState<Category[]>([]);
+  const [createAd] = useCreateAdMutation();
 
   useEffect(() => {
     axios
@@ -22,12 +24,13 @@ export default function NewAd() {
     const formJSON: any = Object.fromEntries(formData.entries());
     formJSON.price = parseFloat(formJSON.price);
 
-    axios
-      .post("http://localhost:4000/ads", formJSON)
-      .then((res) => {
-        router.push(`/ads/${res.data.id}`);
-      })
-      .catch(console.error);
+    createAd({
+      variables: {
+        data: { ...formJSON, category: { id: parseInt(formJSON.category) } },
+      },
+    }).then((res) => {
+      router.push(`/ads/${res.data?.createAd.id}`);
+    });
   };
 
   return (
@@ -88,7 +91,7 @@ export default function NewAd() {
               name="owner"
               id="owner"
               required
-              placeholder="Link"
+              placeholder="Jean-Michel"
               className="input input-bordered w-full max-w-xs"
             />
           </div>

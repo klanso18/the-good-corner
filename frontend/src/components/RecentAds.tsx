@@ -1,17 +1,7 @@
 import { useEffect } from "react";
 import AdCard from "./AdCard";
 import { useQuery, gql } from "@apollo/client";
-
-const GET_RECENT_ADS = gql`
-  query Ads {
-    ads {
-      id
-      picture
-      price
-      title
-    }
-  }
-`;
+import { useAdsQuery } from "@/graphql/generated/schema";
 
 export type RecentAd = {
   id: number;
@@ -21,9 +11,7 @@ export type RecentAd = {
 };
 
 export default function RecentAds() {
-  const { data, loading, refetch } = useQuery<{ ads: RecentAd[] }>(
-    GET_RECENT_ADS
-  );
+  const { data, loading, refetch } = useAdsQuery();
 
   useEffect(() => {
     refetch();

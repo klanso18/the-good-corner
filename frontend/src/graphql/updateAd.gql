@@ -1,0 +1,5 @@
+mutation UpdateAd($adId: Float!, $data: UpdateAdInput!) {
+  updateAd(adId: $adId, data: $data) {
+    id
+  }
+}

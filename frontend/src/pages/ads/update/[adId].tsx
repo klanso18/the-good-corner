@@ -4,42 +4,40 @@ import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { Category } from "@/types";
 import { Ad } from "@/types";
+import {
+  useUpdateAdMutation,
+  useGetCategoriesQuery,
+  useGetAdByIdQuery,
+} from "@/graphql/generated/schema";
 
 export default function UpdateAd() {
   const router = useRouter();
+  const [updateAd] = useUpdateAdMutation();
   const { adId } = router.query;
 
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [ad, setAd] = useState<Ad>();
+  const { data: adData } = useGetAdByIdQuery({
+    variables: { adId: typeof adId === "string" ? parseInt(adId, 10) : 0 },
+    skip: !router.isReady,
+  });
+  const ad = adData?.getAdById;
 
-  useEffect(() => {
-    if (router.isReady) {
-      axios
-        .get<Ad>(`http://localhost:4000/ads/${adId}`)
-        .then((res) => setAd(res.data))
-        .catch(console.error);
-      }
-  }, [adId]);
-
-  useEffect(() => {
-    if (router.isReady) {
-      axios
-      .get<Category[]>("http://localhost:4000/categories")
-      .then((res) => setCategories(res.data))
-      .catch(console.error);
-    }
-  }, []);
+  const { data: catData } = useGetCategoriesQuery();
+  const categories = catData?.categories || [];
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
     const formJSON: any = Object.fromEntries(formData.entries());
     formJSON.price = parseFloat(formJSON.price);
-    axios
-      .patch(`http://localhost:4000/ad/${ad?.id}`, formJSON)
-      .then((res) => {
-        router.push(`/ads/${res.data.id}`);
-      })
+    formJSON.category = { id: parseInt(formJSON.category, 10) };
+
+    updateAd({
+      variables: {
+        adId: typeof adId === "string" ? parseInt(adId, 10) : 0,
+        data: formJSON as any,
+      },
+    })
+      .then((res) => router.push(`/ads/${res.data?.updateAd.id}`))
       .catch(console.error);
   };
 

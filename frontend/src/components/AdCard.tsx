@@ -20,7 +20,7 @@ export default function AdCard({
           />
           <div className="flex justify-between pt-6">
             <div className="ad-card-title">{title}</div>
-            <div className="ad-card-price">{price}</div>
+            <div className="ad-card-price">{price} €</div>
           </div>
         </div>
       </Link>

@@ -1,4 +1,5 @@
-import { Category } from "@/types";
+import { useUpdateTagMutation } from "@/graphql/generated/schema";
+import { Tag } from "@/types";
 import {
   CheckCircleIcon,
   PencilSquareIcon,
@@ -6,27 +7,26 @@ import {
   XCircleIcon,
 } from "@heroicons/react/24/outline";
 import { useState } from "react";
-import { useUpdateCategoryMutation } from "@/graphql/generated/schema";
 
-interface AdminCategoryRowProps {
-  category: Category;
-  handleDeleteCategory: (id: number) => void;
+interface AdminTagRowProps {
+  tag: Tag;
+  handleDeleteTag: (id: number) => void;
 }
 
-export default function AdminCategoryRow({
-  category: { id, name },
-  handleDeleteCategory,
-}: AdminCategoryRowProps) {
+export default function AdminTagRow({
+  tag: { id, name },
+  handleDeleteTag,
+}: AdminTagRowProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [displayedName, setDisplayedName] = useState(name);
-  const [updateCategory] = useUpdateCategoryMutation();
+  const [updateTag] = useUpdateTagMutation();
 
   const handleSave = async () => {
     try {
       if (displayedName) {
-        await updateCategory({
+        await updateTag({
           variables: {
-            categoryId: id,
+            tagId: id,
             data: { name: displayedName },
           },
         });
@@ -84,7 +84,7 @@ export default function AdminCategoryRow({
               className="cursor-pointer"
               width={24}
               height={24}
-              onClick={() => handleDeleteCategory(id)}
+              onClick={() => handleDeleteTag(id)}
             />
           </div>
         )}

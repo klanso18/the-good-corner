@@ -20,6 +20,11 @@ body {
   font-family: 'Roboto', sans-serif;
   font-weight: 100;
   height: 100%;
+  background-color: #fff;
+}
+
+#__next {
+  background-color: #fff;
 }
  
 h1 {
@@ -38,6 +43,8 @@ h1 {
   top: 0;
   left: 0;
   right: 0;
+  display: flex;
+  flex-direction: column;
 }
  
 .main-menu {
@@ -96,6 +103,8 @@ h1 {
   flex-grow: 1;
   justify-content: center;
   gap: 4px;
+  align-items: center;
+  height: 100px;
 }
  
 .main-search-field {
@@ -223,13 +232,34 @@ h1 {
 .navbar {
   display: flex;
   flex-direction: column;
-  background-color: #2a9d8f;
+  background-color: #177577;
 }
 
 .nav-1 {
   justify-content: space-evenly;
 }
 
+.nav-2 {
+  background-color: #fff;
+}
+
 .btn-ghost {
   color:#ffffff
+}
+
+.search-input {
+  border-radius: 10px;
+  width: 50%;
+  height: 50px;
+  background-color: #a4a4a448;
+  border: none;
+}
+
+.search-input:focus {
+  border: none;
+}
+
+.search-btn {
+  height: 50px;
+  margin-left: 3px;
 }

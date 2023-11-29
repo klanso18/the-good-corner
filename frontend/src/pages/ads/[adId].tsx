@@ -12,6 +12,7 @@ import {
   useGetAdByIdQuery,
   useDeleteAdMutation,
 } from "@/graphql/generated/schema";
+import Image from "next/image";
 
 export type AdDetail = {
   id: number;
@@ -25,14 +26,14 @@ export default function AdDetails() {
   const [deleteAd] = useDeleteAdMutation();
   const { adId } = router.query;
 
-  const { data, refetch } = useGetAdByIdQuery({
+  const { data } = useGetAdByIdQuery({
     variables: { adId: typeof adId === "string" ? parseInt(adId, 10) : 0 },
     skip: typeof adId === "undefined",
   });
 
-  useEffect(() => {
-    refetch();
-  }, []);
+  // useEffect(() => {
+  //   refetch();
+  // }, []);
 
   const ad = data?.getAdById;
 
@@ -73,7 +74,7 @@ export default function AdDetails() {
                 <p className="text-2xl">{ad.price} €</p>
               </div>
 
-              <img src={ad.picture} alt={ad.title} className="mt-6 mb-6" />
+              <Image src={ad.picture} alt={ad.title} className="mt-6 mb-6" />
               <p className="mt-6 mb-6">{ad.description}</p>
               <div className="flex justify-between mb-6">
                 <div className="flex items-center mt-3">
@@ -93,7 +94,7 @@ export default function AdDetails() {
                   className="flex items-center mt-3 cursor-pointer"
                 >
                   <PencilSquareIcon width={24} height={24} className="mr-2" />
-                  Editer l'annonce
+                  Editer l&apos;annonce
                 </Link>
 
                 <div
@@ -112,7 +113,7 @@ export default function AdDetails() {
                   }}
                 >
                   <TrashIcon width={24} height={24} className="mr-2" />
-                  Supprimer l'annonce
+                  Supprimer l&apos;annonce
                 </div>
               </div>
             </div>

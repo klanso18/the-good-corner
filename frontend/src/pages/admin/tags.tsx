@@ -12,23 +12,23 @@ export default function AdminTags() {
   const [createTag] = useCreateTagMutation();
   const [deleteTag] = useDeleteTagMutation();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const form = e.target as HTMLFormElement;
-    const formData = new FormData(e.target as HTMLFormElement);
-    const formJSON = Object.fromEntries(formData.entries());
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   const form = e.target as HTMLFormElement;
+  //   const formData = new FormData(e.target as HTMLFormElement);
+  //   const formJSON = Object.fromEntries(formData.entries());
 
-    createTag({
-      variables: {
-        data: formJSON as any,
-      },
-    })
-      .then(() => {
-        refetchTags();
-        form.reset();
-      })
-      .catch(console.error);
-  };
+  //   createTag({
+  //     variables: {
+  //       data: formJSON as any,
+  //     },
+  //   })
+  //     .then(() => {
+  //       refetchTags();
+  //       form.reset();
+  //     })
+  //     .catch(console.error);
+  // };
 
   const handleDeleteTag = (id: number) => {
     if (confirm("Êtes-vous certains de vouloir supprimer ce tag ?"))

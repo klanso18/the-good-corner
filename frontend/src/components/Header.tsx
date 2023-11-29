@@ -5,6 +5,7 @@ import axios from "axios";
 import { Category } from "@/types";
 import qs from "query-string";
 import { useGetCategoriesQuery } from "@/graphql/generated/schema";
+import Image from "next/image";
 
 export default function Header() {
   const router = useRouter();
@@ -36,7 +37,7 @@ export default function Header() {
       <header className="header">
         <div className="logo">
           <Link href="/" className="teddy-logo">
-            <img src="/images/logo-good-corner.png" alt="logo" />
+            <Image src="/images/logo-good-corner.png" alt="logo" />
           </Link>
         </div>
         <div className="navbar">
@@ -89,7 +90,7 @@ export default function Header() {
               <div className="dropdown dropdown-end">
                 <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
                   <div className="w-12 rounded-full">
-                    <img src="/images/profile.jpeg" />
+                    <Image src="/images/profile.jpeg" alt="profil picture" />
                   </div>
                 </label>
                 <ul

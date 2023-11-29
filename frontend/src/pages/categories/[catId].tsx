@@ -11,27 +11,30 @@ export default function CatDetails() {
   const [cat, setCat] = useState<Category>();
 
   useEffect(() => {
-    if (typeof cat === "undefined")
-      axios
-        .get<Category>(`http://localhost:4000/categories/${catId}`)
-        .then((res) => setCat(res.data))
-        .catch(console.error);
+    if (router.isReady) {
+      if (typeof cat === "undefined")
+        axios
+          .get<Category>(`http://localhost:4000/categories/${catId}`)
+          .then((res) => setCat(res.data))
+          .catch(console.error);
+    }
   }, [catId]);
 
   const handleDelete = () => {
-    const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer cette catégorie ?");
+    const confirmDelete = window.confirm(
+      "Êtes-vous sûr de vouloir supprimer cette catégorie ?"
+    );
 
     if (confirmDelete) {
       axios
-      .delete(`http://localhost:4000/categories/${catId}`)
-      .then(() => {
-        alert("Catégorie supprimée !");
-        router.push("/");
-      })
-      .catch(console.error);
+        .delete(`http://localhost:4000/categories/${catId}`)
+        .then(() => {
+          alert("Catégorie supprimée !");
+          router.push("/");
+        })
+        .catch(console.error);
     }
   };
-
 
   return (
     <Layout title={`Catégorie ${catId}`}>
@@ -40,7 +43,9 @@ export default function CatDetails() {
       ) : (
         <div>
           <h1>{cat.name}</h1>
-          <button className="button" onClick={handleDelete}>Supprimer la catégorie</button>
+          <button className="button" onClick={handleDelete}>
+            Supprimer la catégorie
+          </button>
         </div>
       )}
     </Layout>

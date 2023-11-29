@@ -4,7 +4,7 @@ import { validate } from "class-validator";
 import { Ad } from "./entities/ad";
 import { Tag } from "./entities/tag";
 import { Category } from "./entities/category";
-import db from "./config/db";
+import db from "./db";
 import { Like, In } from "typeorm";
 import cors from "cors";
 import { ApolloServer } from '@apollo/server';

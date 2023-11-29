@@ -1,17 +1,22 @@
-import db from "./config/db";
+import db from "./db";
 import { Ad } from "./entities/ad";
 import { Category } from "./entities/category";
 import { Tag } from "./entities/tag";
 
 async function clearDB() {
   const runner = db.createQueryRunner();
-  await runner.query("PRAGMA foreign_keys=OFF");
+  await runner.query("SET session_replication_role = 'replica'");
   await Promise.all(
     db.entityMetadatas.map(async (entity) =>
-      runner.query(`DROP TABLE IF EXISTS ${entity.tableName}`)
+      runner.query(`ALTER TABLE ${entity.tableName} DISABLE TRIGGER ALL`)
     )
   );
-  await runner.query("PRAGMA foreign_keys=ON");
+  await Promise.all(
+    db.entityMetadatas.map(async (entity) =>
+      runner.query(`DROP TABLE IF EXISTS ${entity.tableName} CASCADE`)
+    )
+  );
+  await runner.query("SET session_replication_role = 'origin'");
   await db.synchronize();
 }
 

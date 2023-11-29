@@ -236,7 +236,7 @@ h1 {
 }
 
 .nav-1 {
-  justify-content: space-evenly;
+  justify-content: flex-end;
 }
 
 .nav-2 {

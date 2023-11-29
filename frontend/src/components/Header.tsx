@@ -4,17 +4,22 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Category } from "@/types";
 import qs from "query-string";
+import { useGetCategoriesQuery } from "@/graphql/generated/schema";
 
 export default function Header() {
   const router = useRouter();
-  const [categories, setCategories] = useState<Category[]>([]);
 
-  useEffect(() => {
-    axios
-      .get<Category[]>("http://localhost:4000/categories")
-      .then((res) => setCategories(res.data))
-      .catch(console.error);
-  }, []);
+  const { data } = useGetCategoriesQuery();
+  const categories = data?.categories || [];
+
+  // const [categories, setCategories] = useState<Category[]>([]);
+
+  // useEffect(() => {
+  //   axios
+  //     .get<Category[]>("http://localhost:4000/categories")
+  //     .then((res) => setCategories(res.data))
+  //     .catch(console.error);
+  // }, []);
 
   const [search, setSearch] = useState("");
 

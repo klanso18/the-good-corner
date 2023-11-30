@@ -11,11 +11,11 @@ export type RecentAd = {
 };
 
 export default function RecentAds() {
-  const { data, loading } = useAdsQuery();
+  const { data, loading, refetch } = useAdsQuery();
 
-  // useEffect(() => {
-  //   refetch();
-  // }, []);
+  useEffect(() => {
+    refetch();
+  }, []);
 
   if (loading) return "Chargement...";
 

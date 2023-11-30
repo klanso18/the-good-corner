@@ -1,4 +1,4 @@
-import db from "./db";
+import db from "./config/db";
 import { Ad } from "./entities/ad";
 import { Category } from "./entities/category";
 import { Tag } from "./entities/tag";

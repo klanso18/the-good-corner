@@ -1,7 +1,7 @@
 import { DataSource } from "typeorm";
-import { Ad } from "./entities/ad";
-import { Tag } from "./entities/tag";
-import { Category } from "./entities/category";
+import { Ad } from "../entities/ad";
+import { Tag } from "../entities/tag";
+import { Category } from "../entities/category";
 
 export default new DataSource({
   type: "postgres",

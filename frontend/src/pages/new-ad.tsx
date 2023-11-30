@@ -1,36 +1,28 @@
 import Layout from "@/components/Layout";
 import axios from "axios";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent } from "react";
 import { Category } from "@/types";
 import { useRouter } from "next/router";
-import { useCreateAdMutation } from "@/graphql/generated/schema";
+import {
+  useCreateAdMutation,
+  useGetCategoriesQuery,
+} from "@/graphql/generated/schema";
 
 export default function NewAd() {
-  const [categories, setCategories] = useState<Category[]>([]);
   const [createAd] = useCreateAdMutation();
-
-  useEffect(() => {
-    axios
-      .get<Category[]>("http://localhost:4000/categories")
-      .then((res) => setCategories(res.data))
-      .catch(console.error);
-  }, []);
+  const { data } = useGetCategoriesQuery();
+  const categories = data?.categories || [];
 
   const router = useRouter();
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
     const formJSON: any = Object.fromEntries(formData.entries());
     formJSON.price = parseFloat(formJSON.price);
-
-    createAd({
-      variables: {
-        data: { ...formJSON, category: { id: parseInt(formJSON.category) } },
-      },
-    }).then((res) => {
-      router.push(`/ads/${res.data?.createAd.id}`);
-    });
+    formJSON.category = { id: parseInt(formJSON.category) };
+    const res = await createAd({ variables: { data: { ...formJSON } } });
+    router.push(`/ads/${res.data?.createAd.id}`);
   };
 
   return (

@@ -15,7 +15,7 @@ export default function AdCard({
     <div className="w-[400px]">
       <Link href={link}>
         <div className="shadow-md border rounded-lg  p-6 bg-white mr-3 mb-3">
-          <Image
+          <img
             className="h-[200px] w-full object-cover rounded-md"
             src={picture}
             alt="ad picture"

@@ -13,15 +13,6 @@ export default function Header() {
   const { data } = useGetCategoriesQuery();
   const categories = data?.categories || [];
 
-  // const [categories, setCategories] = useState<Category[]>([]);
-
-  // useEffect(() => {
-  //   axios
-  //     .get<Category[]>("http://localhost:4000/categories")
-  //     .then((res) => setCategories(res.data))
-  //     .catch(console.error);
-  // }, []);
-
   const [search, setSearch] = useState("");
 
   useEffect(() => {
@@ -37,7 +28,7 @@ export default function Header() {
       <header className="header">
         <div className="logo">
           <Link href="/" className="teddy-logo">
-            <Image src="/images/logo-good-corner.png" alt="logo" />
+            <img src="/images/logo-good-corner.png" alt="logo" />
           </Link>
         </div>
         <div className="navbar">
@@ -90,7 +81,7 @@ export default function Header() {
               <div className="dropdown dropdown-end">
                 <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
                   <div className="w-12 rounded-full">
-                    <Image src="/images/profile.jpeg" alt="profil picture" />
+                    <img src="/images/profile.jpeg" alt="profil picture" />
                   </div>
                 </label>
                 <ul

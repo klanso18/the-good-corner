@@ -263,3 +263,34 @@ h1 {
   height: 50px;
   margin-left: 3px;
 }
+
+.image-block {
+  display: flex;
+}
+
+.save-button {
+  width: 200px;
+}
+
+.btn-block {
+  display: flex;
+  justify-content: center;
+}
+
+.input,
+.textarea,
+.select {
+  background-color: #bfbfbf57;
+}
+
+.input:focus,
+.textarea:focus,
+.select:focus {
+  background-color: #fff;
+  border: none;
+}
+
+.error-message {
+  text-align: right;
+  color: #ff581b;
+}

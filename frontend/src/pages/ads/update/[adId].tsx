@@ -1,14 +1,12 @@
 import Layout from "@/components/Layout";
-import axios from "axios";
-import { FormEvent, useEffect, useState } from "react";
+import { useState, FormEvent } from "react";
 import { useRouter } from "next/router";
-import { Category } from "@/types";
-import { Ad } from "@/types";
 import {
   useUpdateAdMutation,
   useGetCategoriesQuery,
   useGetAdByIdQuery,
 } from "@/graphql/generated/schema";
+import UploadFile from "@/components/UploadFile";
 
 export default function UpdateAd() {
   const router = useRouter();
@@ -23,6 +21,11 @@ export default function UpdateAd() {
 
   const { data: catData } = useGetCategoriesQuery();
   const categories = catData?.categories || [];
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string>(
+    ad?.picture || ""
+  );
+  const [error, setError] = useState<string>("");
+  const [isValidUrl, setIsValidUrl] = useState<boolean>(true);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -30,7 +33,6 @@ export default function UpdateAd() {
     const formJSON: any = Object.fromEntries(formData.entries());
     formJSON.price = parseFloat(formJSON.price);
     formJSON.category = { id: parseInt(formJSON.category, 10) };
-
     updateAd({
       variables: {
         adId: typeof adId === "string" ? parseInt(adId, 10) : 0,
@@ -41,13 +43,24 @@ export default function UpdateAd() {
       .catch(console.error);
   };
 
+  const handleImageUrlChange = (url: string) => {
+    setImagePreviewUrl(url);
+    setError("");
+    setIsValidUrl(true);
+  };
+
+  const handleImageError = () => {
+    setError("Invalid image URL");
+    setIsValidUrl(false);
+  };
+
   return (
     <Layout title={ad?.title ? ad.title + " - TGC" : "The Good Corner"}>
       <h1 className="pt-6 pb-6 text-2xl">Editer une annonce</h1>
       {ad && (
         <form onSubmit={handleSubmit} className="pb-12">
           <div className="flex flex-wrap gap-6 mb-3">
-            <div className="form-control w-full max-w-xs">
+            <div className="form-control w-full max-w-sm">
               <label className="label" htmlFor="title">
                 <span className="label-text">Titre</span>
               </label>
@@ -58,27 +71,35 @@ export default function UpdateAd() {
                 name="title"
                 id="title"
                 placeholder="Zelda : Occarina of time"
-                className="input input-bordered w-full max-w-xs"
+                className="input input-bordered w-full max-w-sm"
               />
             </div>
-            <div className="form-control w-full max-w-xs">
+            <div className="form-control w-full max-w-sm">
               <label className="label" htmlFor="picture">
                 <span className="label-text">Image</span>
               </label>
-              <input
-                defaultValue={ad?.picture}
-                type="text"
-                name="picture"
-                id="picture"
-                required
-                placeholder="https://imageshack.com/zoot.png"
-                className="input input-bordered w-full max-w-xs"
+              <UploadFile
+                imageUrl={imagePreviewUrl}
+                onChange={handleImageUrlChange}
+                onImageError={handleImageError}
               />
+            </div>
+            <div className="w-full">
+              {error && <div className="error-message">{error}</div>}
+              {isValidUrl && !error && imagePreviewUrl && (
+                <div className="image-preview">
+                  <img
+                    src={imagePreviewUrl}
+                    alt="Preview"
+                    onError={handleImageError}
+                  />
+                </div>
+              )}
             </div>
           </div>
 
           <div className="flex flex-wrap gap-6 mb-3">
-            <div className="form-control w-full max-w-xs">
+            <div className="form-control w-full max-w-sm">
               <label className="label" htmlFor="location">
                 <span className="label-text">Localisation</span>
               </label>
@@ -89,11 +110,11 @@ export default function UpdateAd() {
                 id="location"
                 required
                 placeholder="Paris"
-                className="input input-bordered w-full max-w-xs"
+                className="input input-bordered w-full max-w-sm"
               />
             </div>
 
-            <div className="form-control w-full max-w-xs">
+            <div className="form-control w-full max-w-sm">
               <label className="label" htmlFor="owner">
                 <span className="label-text">Auteur</span>
               </label>
@@ -104,7 +125,7 @@ export default function UpdateAd() {
                 id="owner"
                 required
                 placeholder="Link"
-                className="input input-bordered w-full max-w-xs"
+                className="input input-bordered w-full max-w-sm"
               />
             </div>
           </div>
@@ -125,7 +146,7 @@ export default function UpdateAd() {
           </div>
 
           <div className="flex flex-wrap gap-6 mb-3 mt-6">
-            <div className="form-control w-full max-w-xs">
+            <div className="form-control w-full max-w-sm">
               <label className="label" htmlFor="price">
                 <span className="label-text">Prix</span>
               </label>
@@ -137,11 +158,11 @@ export default function UpdateAd() {
                 defaultValue={ad.price}
                 min={0}
                 placeholder="30"
-                className="input input-bordered w-full max-w-xs"
+                className="input input-bordered w-full max-w-sm"
               />
             </div>
 
-            <div className="form-control w-full max-w-xs">
+            <div className="form-control w-full max-w-sm">
               <label className="label" htmlFor="category">
                 <span className="label-text">Catégorie</span>
               </label>
@@ -160,10 +181,11 @@ export default function UpdateAd() {
               </select>
             </div>
           </div>
-
-          <button className="btn btn-primary text-white mt-12 w-full">
-            Enregistrer
-          </button>
+          <div className="btn-block">
+            <button className="button save-button text-white mt-12">
+              Enregistrer
+            </button>
+          </div>
         </form>
       )}
     </Layout>

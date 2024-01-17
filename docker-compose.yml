@@ -20,6 +20,8 @@ services:
       - 4001:4001
     volumes:
       - ./backend/src:/app/src
+    env_file:
+      - ./backend/.env
 
   frontend:
     build: ./frontend

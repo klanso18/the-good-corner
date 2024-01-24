@@ -5,9 +5,9 @@ import AdminHeader from "./AdminHeader";
 type AdminLayoutProps = {
   children: ReactNode;
   title: string;
-}
+};
 
-export default function AdminLayout ({ children, title }: AdminLayoutProps) {
+export default function AdminLayout({ children, title }: AdminLayoutProps) {
   return (
     <>
       <Head>
@@ -20,5 +20,5 @@ export default function AdminLayout ({ children, title }: AdminLayoutProps) {
         <main className="p-6">{children}</main>
       </div>
     </>
-  )
+  );
 }

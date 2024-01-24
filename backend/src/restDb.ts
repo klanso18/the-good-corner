@@ -2,6 +2,7 @@ import db from "./config/db";
 import { Ad } from "./entities/ad";
 import { Category } from "./entities/category";
 import { Tag } from "./entities/tag";
+import { User } from "./entities/user";
 
 async function clearDB() {
   const runner = db.createQueryRunner();
@@ -19,7 +20,6 @@ async function clearDB() {
   await runner.query("SET session_replication_role = 'origin'");
   await db.synchronize();
 }
-
 
 async function main() {
   await db.initialize();
@@ -62,17 +62,22 @@ async function main() {
   const tag2 = Tag.create({ name: "#voiture" });
   const tag3 = Tag.create({ name: "#console" });
 
-
   ad1.category = cat1;
   ad2.category = cat1;
   ad3.category = cat2;
   ad1.tags = [tag1];
   ad2.tags = [tag1, tag3];
   ad3.tags = [tag2];
-  
+
+  const user1 = User.create({
+    email: "monmail1@gmail.com",
+    password: "monmdp1",
+  });
+
   await ad1.save();
   await ad2.save();
   await ad3.save();
+  await user1.save();
 }
 
 main();

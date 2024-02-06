@@ -35,6 +35,22 @@ export type Category = {
   name: Scalars['String'];
 };
 
+export type InputLogin = {
+  email: Scalars['String'];
+  password: Scalars['String'];
+};
+
+export type InputRegister = {
+  email: Scalars['String'];
+  password: Scalars['String'];
+};
+
+export type Message = {
+  __typename?: 'Message';
+  message: Scalars['String'];
+  success: Scalars['Boolean'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createAd: Ad;
@@ -43,6 +59,7 @@ export type Mutation = {
   deleteAd: Scalars['String'];
   deleteCategory: Scalars['String'];
   deleteTag: Scalars['String'];
+  register: UserWithoutPassword;
   updateAd: Ad;
   updateCat: Category;
   updateTag: Tag;
@@ -76,6 +93,11 @@ export type MutationDeleteCategoryArgs = {
 
 export type MutationDeleteTagArgs = {
   tagId: Scalars['Float'];
+};
+
+
+export type MutationRegisterArgs = {
+  data: InputRegister;
 };
 
 
@@ -124,7 +146,10 @@ export type Query = {
   ads: Array<Ad>;
   categories: Array<Category>;
   getAdById: Ad;
+  login: Message;
+  logout: Message;
   tags: Array<Tag>;
+  users: Array<User>;
 };
 
 
@@ -142,6 +167,11 @@ export type QueryCategoriesArgs = {
 
 export type QueryGetAdByIdArgs = {
   adId: Scalars['Int'];
+};
+
+
+export type QueryLoginArgs = {
+  data: InputLogin;
 };
 
 
@@ -172,6 +202,19 @@ export type UpdateCategoryInput = {
 
 export type UpdateTagInput = {
   name?: InputMaybe<Scalars['String']>;
+};
+
+export type User = {
+  __typename?: 'User';
+  email: Scalars['String'];
+  id: Scalars['String'];
+  password: Scalars['String'];
+};
+
+export type UserWithoutPassword = {
+  __typename?: 'UserWithoutPassword';
+  email: Scalars['String'];
+  id: Scalars['String'];
 };
 
 export type CreateAdMutationVariables = Exact<{
@@ -237,6 +280,18 @@ export type GetTagsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GetTagsQuery = { __typename?: 'Query', tags: Array<{ __typename?: 'Tag', id: number, name: string }> };
+
+export type GetUsersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetUsersQuery = { __typename?: 'Query', users: Array<{ __typename?: 'User', id: string, email: string }> };
+
+export type LoginQueryVariables = Exact<{
+  data: InputLogin;
+}>;
+
+
+export type LoginQuery = { __typename?: 'Query', login: { __typename?: 'Message', message: string, success: boolean } };
 
 export type SearchAdsQueryVariables = Exact<{
   title?: InputMaybe<Scalars['String']>;
@@ -615,6 +670,77 @@ export function useGetTagsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Ge
 export type GetTagsQueryHookResult = ReturnType<typeof useGetTagsQuery>;
 export type GetTagsLazyQueryHookResult = ReturnType<typeof useGetTagsLazyQuery>;
 export type GetTagsQueryResult = Apollo.QueryResult<GetTagsQuery, GetTagsQueryVariables>;
+export const GetUsersDocument = gql`
+    query GetUsers {
+  users {
+    id
+    email
+  }
+}
+    `;
+
+/**
+ * __useGetUsersQuery__
+ *
+ * To run a query within a React component, call `useGetUsersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUsersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUsersQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetUsersQuery(baseOptions?: Apollo.QueryHookOptions<GetUsersQuery, GetUsersQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetUsersQuery, GetUsersQueryVariables>(GetUsersDocument, options);
+      }
+export function useGetUsersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetUsersQuery, GetUsersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetUsersQuery, GetUsersQueryVariables>(GetUsersDocument, options);
+        }
+export type GetUsersQueryHookResult = ReturnType<typeof useGetUsersQuery>;
+export type GetUsersLazyQueryHookResult = ReturnType<typeof useGetUsersLazyQuery>;
+export type GetUsersQueryResult = Apollo.QueryResult<GetUsersQuery, GetUsersQueryVariables>;
+export const LoginDocument = gql`
+    query Login($data: InputLogin!) {
+  login(data: $data) {
+    message
+    success
+  }
+}
+    `;
+
+/**
+ * __useLoginQuery__
+ *
+ * To run a query within a React component, call `useLoginQuery` and pass it any options that fit your needs.
+ * When your component renders, `useLoginQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useLoginQuery({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useLoginQuery(baseOptions: Apollo.QueryHookOptions<LoginQuery, LoginQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<LoginQuery, LoginQueryVariables>(LoginDocument, options);
+      }
+export function useLoginLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<LoginQuery, LoginQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<LoginQuery, LoginQueryVariables>(LoginDocument, options);
+        }
+export type LoginQueryHookResult = ReturnType<typeof useLoginQuery>;
+export type LoginLazyQueryHookResult = ReturnType<typeof useLoginLazyQuery>;
+export type LoginQueryResult = Apollo.QueryResult<LoginQuery, LoginQueryVariables>;
 export const SearchAdsDocument = gql`
     query SearchAds($title: String, $categoryId: Int, $tagId: String) {
   ads(title: $title, categoryId: $categoryId, tagId: $tagId) {

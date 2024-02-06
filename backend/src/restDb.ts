@@ -8,14 +8,18 @@ async function clearDB() {
   const runner = db.createQueryRunner();
   await runner.query("SET session_replication_role = 'replica'");
   await Promise.all(
-    db.entityMetadatas.map(async (entity) =>
-      runner.query(`ALTER TABLE ${entity.tableName} DISABLE TRIGGER ALL`)
-    )
+    db.entityMetadatas.map(async (entity) => {
+      const tableName = entity.tableName;
+      const escapedTableName = tableName === "user" ? '"user"' : tableName;
+      await runner.query(`ALTER TABLE ${escapedTableName} DISABLE TRIGGER ALL`);
+    })
   );
   await Promise.all(
-    db.entityMetadatas.map(async (entity) =>
-      runner.query(`DROP TABLE IF EXISTS ${entity.tableName} CASCADE`)
-    )
+    db.entityMetadatas.map(async (entity) => {
+      const tableName = entity.tableName;
+      const escapedTableName = tableName === "user" ? '"user"' : tableName;
+      await runner.query(`DROP TABLE IF EXISTS ${escapedTableName} CASCADE`);
+    })
   );
   await runner.query("SET session_replication_role = 'origin'");
   await db.synchronize();

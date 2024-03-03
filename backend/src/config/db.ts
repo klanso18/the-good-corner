@@ -4,14 +4,16 @@ import { Tag } from "../entities/tag";
 import { Category } from "../entities/category";
 import { User } from "../entities/user";
 
-export default new DataSource({
+const db = new DataSource({
   type: "postgres",
-  host: process.env.DB_HOST || "db",
+  host: process.env.DB_HOST || "localhost",
   port: parseInt(process.env.DB_PORT || "0") || 5432,
   username: process.env.DB_USER || "postgres",
   password: process.env.DB_PASS || "postgres",
   database: process.env.DB_NAME || "postgres",
   entities: [Ad, Tag, Category, User],
-  synchronize: true,
-  logging: true,
+  synchronize: process.env.NODE_ENV !== "production",
+  logging: process.env.NODE_ENV !== "test",
 });
+
+export default db;

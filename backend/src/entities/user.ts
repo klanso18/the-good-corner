@@ -13,7 +13,11 @@ import {
 export class User extends BaseEntity {
   @BeforeInsert()
   async hashPassword() {
-    this.password = await argon2.hash(this.password);
+    if (this.password) {
+      this.password = await argon2.hash(this.password);
+    } else {
+      throw new Error("Password is required.");
+    }
   }
 
   @Field()
@@ -21,7 +25,7 @@ export class User extends BaseEntity {
   id: string;
 
   @Field()
-  @Column({ unique: true })
+  @Column()
   email: string;
 
   @Field()

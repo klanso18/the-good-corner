@@ -1,18 +1,9 @@
 import { Maybe } from "type-graphql";
-import db from "./src/config/db";
+import db, { clearDB } from "./src/config/db";
 import { ASTNode, GraphQLSchema, graphql, print } from "graphql";
 import getSchema from "./src/schema";
 
 export let schema: GraphQLSchema;
-
-async function clearDB() {
-  const entities = db.entityMetadatas;
-  const tableNames = entities
-    .map((entity) => `"${entity.tableName}"`)
-    .join(", ");
-
-  await db.query(`TRUNCATE ${tableNames} RESTART IDENTITY CASCADE;`);
-}
 
 export async function execute(
   operation: ASTNode,

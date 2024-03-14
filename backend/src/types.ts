@@ -1,3 +1,6 @@
+import express from "express";
+import { User } from "./entities/user";
+
 export type Ad = {
   id: number;
   title: string;
@@ -7,4 +10,10 @@ export type Ad = {
   picture: string;
   location: string;
   createdAt: string;
+};
+
+export interface ContextType {
+  req: express.Request;
+  res: express.Response;
+  currentUser?: User;
 }

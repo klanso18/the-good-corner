@@ -1,4 +1,4 @@
-import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
+import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from "type-graphql";
 import {
   InputLogin,
   InputRegister,
@@ -10,6 +10,7 @@ import * as argon2 from "argon2";
 import { SignJWT } from "jose";
 import { MyContext } from "..";
 import Cookies from "cookies";
+import { ContextType } from "../types";
 
 @Resolver()
 class UserResolver {

@@ -1,29 +1,8 @@
-import db from "./config/db";
+import db, { clearDB } from "./config/db";
 import { Ad } from "./entities/ad";
 import { Category } from "./entities/category";
 import { Tag } from "./entities/tag";
 import { User } from "./entities/user";
-
-async function clearDB() {
-  const runner = db.createQueryRunner();
-  await runner.query("SET session_replication_role = 'replica'");
-  await Promise.all(
-    db.entityMetadatas.map(async (entity) => {
-      const tableName = entity.tableName;
-      const escapedTableName = tableName === "user" ? '"user"' : tableName;
-      await runner.query(`ALTER TABLE ${escapedTableName} DISABLE TRIGGER ALL`);
-    })
-  );
-  await Promise.all(
-    db.entityMetadatas.map(async (entity) => {
-      const tableName = entity.tableName;
-      const escapedTableName = tableName === "user" ? '"user"' : tableName;
-      await runner.query(`DROP TABLE IF EXISTS ${escapedTableName} CASCADE`);
-    })
-  );
-  await runner.query("SET session_replication_role = 'origin'");
-  await db.synchronize();
-}
 
 async function main() {
   await db.initialize();

@@ -26,14 +26,14 @@ export default function AdDetails() {
   const [deleteAd] = useDeleteAdMutation();
   const { adId } = router.query;
 
-  const { data } = useGetAdByIdQuery({
+  const { data, refetch } = useGetAdByIdQuery({
     variables: { adId: typeof adId === "string" ? parseInt(adId, 10) : 0 },
     skip: typeof adId === "undefined",
   });
 
-  // useEffect(() => {
-  //   refetch();
-  // }, []);
+  useEffect(() => {
+    refetch();
+  }, []);
 
   const ad = data?.getAdById;
 

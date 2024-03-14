@@ -1,0 +1,8 @@
+query SearchAds($title: String, $categoryId: Int, $tagId: String) {
+  ads(title: $title, categoryId: $categoryId, tagId: $tagId) {
+    id
+    picture
+    price
+    title
+  }
+}

@@ -8,14 +8,20 @@ export type Ad = {
   createdAt: string;
   id: number;
   category?: Category;
-}
+};
 
 export type Category = {
   name: string;
   id: number;
-}
+};
 
 export type Tag = {
   name: string;
   id: number;
-}
+};
+
+export type User = {
+  email: string;
+  password: string;
+  id: number;
+};

@@ -1,4 +1,4 @@
-import { Resolver, Query, Arg, Mutation } from "type-graphql";
+import { Resolver, Query, Arg, Mutation, Authorized } from "type-graphql";
 import { NewTagInput, Tag, UpdateTagInput } from "../entities/tag";
 import { GraphQLError } from "graphql";
 import { validate } from "class-validator";
@@ -6,7 +6,6 @@ import { Like } from "typeorm";
 
 @Resolver(Tag)
 class TagsResolver {
-
   @Query(() => [Tag])
   async tags(@Arg("name", { nullable: true }) name: string) {
     return await Tag.find({
@@ -17,7 +16,7 @@ class TagsResolver {
 
   @Mutation(() => Tag)
   async createTag(@Arg("data", { validate: true }) data: NewTagInput) {
-    const newTag = new Tag;
+    const newTag = new Tag();
     Object.assign(newTag, data);
     const errors = await validate(newTag);
     if (errors.length !== 0)
@@ -44,7 +43,6 @@ class TagsResolver {
     await tagToDelete.remove();
     return "Deleted";
   }
-
 }
 
 export default TagsResolver;

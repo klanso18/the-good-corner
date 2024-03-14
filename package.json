@@ -1,0 +1,14 @@
+{
+  "name": "the-good-corner",
+  "version": "1.0.0",
+  "description": "Just ads",
+  "main": "index.js",
+  "scripts": {
+    "dev": "docker compose up --build",
+    "prod": "docker compose -f docker-compose.production.yml up --build",
+    "testDB": "docker compose -f docker-compose.integration-tests.yml up testDB",
+    "e2e": "docker compose -f docker-compose.e2e-tests.yml up"
+  },
+  "author": "",
+  "license": "ISC"
+}

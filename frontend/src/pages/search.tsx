@@ -1,35 +1,23 @@
 import Layout from "@/components/Layout";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import axios from "axios";
 import { Ad, Category } from "@/types";
 import AdCard from "@/components/AdCard";
 import queryString from "query-string";
+import { useSearchAdsQuery } from "@/graphql/generated/schema";
 
 export default function Search() {
   const router = useRouter();
+  const categoryId =
+    typeof router.query.categoryId === "string"
+      ? parseInt(router.query.categoryId, 10)
+      : undefined;
+  const title = router.query.title as string;
 
-  const [ads, setAds] = useState<Ad[]>([]);
-
-  useEffect(() => {
-    axios
-      .get<Ad[]>(`http://localhost:4000/ads${window.location.search}`)
-      .then((res) => setAds(res.data))
-      .catch(console.error);
-  }, [router.query.title, router.query.categoryId]);
-
-  const [categories, setCategories] = useState<Category[]>([]);
-
-  useEffect(() => {
-    axios
-      .get<Category[]>("http://localhost:4000/categories")
-      .then((res) => setCategories(res.data))
-      .catch(console.error);
-  }, []);
-
-  const currentCategoryName = categories.find(
-    (c) => c.id.toString() === router.query.categoryId
-  )?.name;
+  const { data } = useSearchAdsQuery({
+    variables: { categoryId, title },
+    skip: !router.isReady,
+  });
+  const ads = data?.ads || [];
 
   return (
     <Layout title="recherche - TGC">

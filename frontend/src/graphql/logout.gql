@@ -1,0 +1,6 @@
+query Logout {
+  logout {
+    message
+    success
+  }
+}
